@@ -1,0 +1,253 @@
+options:
+  parameters: {author: Lab5, catch_exceptions: 'True', category: '[GRC Hier Blocks]', cmake_opt: '', comment: '', copyright: '', description: '', gen_cmake: 'On', gen_linking: dynamic, generate_options: qt_gui,
+    hier_block_src_path: '.:', id: lab5_1_9_5_dqpsk_sdr, max_nouts: '0', output_language: python, placement: '(0,0)', qt_qss_theme: '', realtime_scheduling: '', run: 'True', run_command: '{python} -u {filename}',
+    run_options: prompt, sizing_mode: fixed, thread_safe_setters: '', title: ЛР5 п.1.9.5  DQPSK через SDR (HackRF -> RTL-SDR), window_size: '(1000,1000)'}
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+blocks:
+- name: samp_rate
+  id: variable
+  parameters: {comment: '', value: 2e6}
+  states:
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+- name: src
+  id: blocks_vector_source_x
+  parameters: {vector: '(0, 1, 2, 3)', tags: '[]', repeat: 'True', vlen: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: byte}
+  states:
+    coordinate: [8, 180]
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters: {comment: '', value: '10'}
+  states:
+    coordinate: [300, 12]
+    rotation: 0
+    state: enabled
+- name: center_freq
+  id: variable
+  parameters: {comment: '', value: 433.92e6}
+  states:
+    coordinate: [390, 12]
+    rotation: 0
+    state: enabled
+- name: blocks_uchar_to_float_0
+  id: blocks_uchar_to_float
+  parameters: {affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [300, 100]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters: {type: float, name: '"Переданное"', ylabel: Amplitude, yunit: '""', size: '100', srate: samp_rate, grid: 'True', autoscale: 'True', ymin: '-1', ymax: '4', nconnections: '1', update_time: '0.10',
+    entags: 'True', tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_delay: '0', tr_chan: '0', tr_tag: '""', ctrlpanel: 'False', legend: 'True', axislabels: 'True', stemplot: 'False',
+    label1: Signal 1, width1: '1', color1: blue, style1: '1', marker1: '-1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [500, 60]
+    rotation: 0
+    state: enabled
+- name: diff_enc
+  id: digital_diff_encoder_bb
+  parameters: {coding: digital.DIFF_DIFFERENTIAL, affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', modulus: '4'}
+  states:
+    coordinate: [250, 260]
+    rotation: 0
+    state: enabled
+- name: chunks2sym
+  id: digital_chunks_to_symbols_xx
+  parameters: {dimension: '1', num_ports: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', in_type: byte, out_type: complex, symbol_table: '[0.707+0.707j, -0.707+0.707j, -0.707-0.707j,
+      0.707-0.707j]'}
+  states:
+    coordinate: [470, 250]
+    rotation: 0
+    state: enabled
+- name: tx_gain
+  id: variable_qtgui_range
+  parameters: {rangeType: float, value: '0', start: '0', stop: '47', step: '1', widget: counter_slider, orient: QtCore.Qt.Horizontal, min_len: '200', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0',
+    comment: '', label: '"TX gain (HackRF), дБ"'}
+  states:
+    coordinate: [150, 470]
+    rotation: 0
+    state: enabled
+- name: rx_gain
+  id: variable_qtgui_range
+  parameters: {rangeType: float, value: '30', start: '0', stop: '49', step: '1', widget: counter_slider, orient: QtCore.Qt.Horizontal, min_len: '200', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0',
+    comment: '', label: '"RX gain (RTL-SDR), дБ"'}
+  states:
+    coordinate: [320, 470]
+    rotation: 0
+    state: enabled
+- name: ppm
+  id: variable_qtgui_range
+  parameters: {rangeType: float, value: '0', start: '-100', stop: '100', step: '1', widget: counter_slider, orient: QtCore.Qt.Horizontal, min_len: '200', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0',
+    comment: '', label: '"RX ppm"'}
+  states:
+    coordinate: [490, 470]
+    rotation: 0
+    state: enabled
+- name: blocks_repeat_0
+  id: blocks_repeat
+  parameters: {vlen: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: complex, interp: sps}
+  states:
+    coordinate: [690, 250]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters: {const: '0.5', vlen: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: complex}
+  states:
+    coordinate: [850, 250]
+    rotation: 0
+    state: enabled
+- name: sdr_tx
+  id: osmosdr_sink
+  parameters: {args: '"numchan=1 hackrf=0"', num_mboards: '1', nchan: '1', sample_rate: samp_rate, freq0: center_freq, corr0: '0', gain0: tx_gain, if_gain0: '20', bb_gain0: '20', ant0: '', bw0: '0', freq1: 100e6,
+    corr1: '0', gain1: '10', if_gain1: '20', bb_gain1: '20', ant1: '', bw1: '0', freq2: 100e6, corr2: '0', gain2: '10', if_gain2: '20', bb_gain2: '20', ant2: '', bw2: '0', freq3: 100e6, corr3: '0', gain3: '10',
+    if_gain3: '20', bb_gain3: '20', ant3: '', bw3: '0', freq4: 100e6, corr4: '0', gain4: '10', if_gain4: '20', bb_gain4: '20', ant4: '', bw4: '0', freq5: 100e6, corr5: '0', gain5: '10', if_gain5: '20',
+    bb_gain5: '20', ant5: '', bw5: '0', freq6: 100e6, corr6: '0', gain6: '10', if_gain6: '20', bb_gain6: '20', ant6: '', bw6: '0', freq7: 100e6, corr7: '0', gain7: '10', if_gain7: '20', bb_gain7: '20',
+    ant7: '', bw7: '0', freq8: 100e6, corr8: '0', gain8: '10', if_gain8: '20', bb_gain8: '20', ant8: '', bw8: '0', freq9: 100e6, corr9: '0', gain9: '10', if_gain9: '20', bb_gain9: '20', ant9: '', bw9: '0',
+    freq10: 100e6, corr10: '0', gain10: '10', if_gain10: '20', bb_gain10: '20', ant10: '', bw10: '0', freq11: 100e6, corr11: '0', gain11: '10', if_gain11: '20', bb_gain11: '20', ant11: '', bw11: '0', freq12: 100e6,
+    corr12: '0', gain12: '10', if_gain12: '20', bb_gain12: '20', ant12: '', bw12: '0', freq13: 100e6, corr13: '0', gain13: '10', if_gain13: '20', bb_gain13: '20', ant13: '', bw13: '0', freq14: 100e6, corr14: '0',
+    gain14: '10', if_gain14: '20', bb_gain14: '20', ant14: '', bw14: '0', freq15: 100e6, corr15: '0', gain15: '10', if_gain15: '20', bb_gain15: '20', ant15: '', bw15: '0', freq16: 100e6, corr16: '0', gain16: '10',
+    if_gain16: '20', bb_gain16: '20', ant16: '', bw16: '0', freq17: 100e6, corr17: '0', gain17: '10', if_gain17: '20', bb_gain17: '20', ant17: '', bw17: '0', freq18: 100e6, corr18: '0', gain18: '10', if_gain18: '20',
+    bb_gain18: '20', ant18: '', bw18: '0', freq19: 100e6, corr19: '0', gain19: '10', if_gain19: '20', bb_gain19: '20', ant19: '', bw19: '0', freq20: 100e6, corr20: '0', gain20: '10', if_gain20: '20', bb_gain20: '20',
+    ant20: '', bw20: '0', freq21: 100e6, corr21: '0', gain21: '10', if_gain21: '20', bb_gain21: '20', ant21: '', bw21: '0', freq22: 100e6, corr22: '0', gain22: '10', if_gain22: '20', bb_gain22: '20', ant22: '',
+    bw22: '0', freq23: 100e6, corr23: '0', gain23: '10', if_gain23: '20', bb_gain23: '20', ant23: '', bw23: '0', freq24: 100e6, corr24: '0', gain24: '10', if_gain24: '20', bb_gain24: '20', ant24: '', bw24: '0',
+    freq25: 100e6, corr25: '0', gain25: '10', if_gain25: '20', bb_gain25: '20', ant25: '', bw25: '0', freq26: 100e6, corr26: '0', gain26: '10', if_gain26: '20', bb_gain26: '20', ant26: '', bw26: '0', freq27: 100e6,
+    corr27: '0', gain27: '10', if_gain27: '20', bb_gain27: '20', ant27: '', bw27: '0', freq28: 100e6, corr28: '0', gain28: '10', if_gain28: '20', bb_gain28: '20', ant28: '', bw28: '0', freq29: 100e6, corr29: '0',
+    gain29: '10', if_gain29: '20', bb_gain29: '20', ant29: '', bw29: '0', freq30: 100e6, corr30: '0', gain30: '10', if_gain30: '20', bb_gain30: '20', ant30: '', bw30: '0', freq31: 100e6, corr31: '0', gain31: '10',
+    if_gain31: '20', bb_gain31: '20', ant31: '', bw31: '0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [1010, 200]
+    rotation: 0
+    state: enabled
+- name: sdr_rx
+  id: osmosdr_source
+  parameters: {args: '"numchan=1 rtl=0"', num_mboards: '1', nchan: '1', sample_rate: samp_rate, freq0: center_freq, corr0: ppm, dc_offset_mode0: '2', iq_balance_mode0: '2', gain_mode0: 'False', gain0: rx_gain,
+    if_gain0: '20', bb_gain0: '20', ant0: '', bw0: '0', freq1: 100e6, corr1: '0', dc_offset_mode1: '0', iq_balance_mode1: '0', gain_mode1: 'False', gain1: '10', if_gain1: '20', bb_gain1: '20', ant1: '',
+    bw1: '0', freq2: 100e6, corr2: '0', dc_offset_mode2: '0', iq_balance_mode2: '0', gain_mode2: 'False', gain2: '10', if_gain2: '20', bb_gain2: '20', ant2: '', bw2: '0', freq3: 100e6, corr3: '0', dc_offset_mode3: '0',
+    iq_balance_mode3: '0', gain_mode3: 'False', gain3: '10', if_gain3: '20', bb_gain3: '20', ant3: '', bw3: '0', freq4: 100e6, corr4: '0', dc_offset_mode4: '0', iq_balance_mode4: '0', gain_mode4: 'False',
+    gain4: '10', if_gain4: '20', bb_gain4: '20', ant4: '', bw4: '0', freq5: 100e6, corr5: '0', dc_offset_mode5: '0', iq_balance_mode5: '0', gain_mode5: 'False', gain5: '10', if_gain5: '20', bb_gain5: '20',
+    ant5: '', bw5: '0', freq6: 100e6, corr6: '0', dc_offset_mode6: '0', iq_balance_mode6: '0', gain_mode6: 'False', gain6: '10', if_gain6: '20', bb_gain6: '20', ant6: '', bw6: '0', freq7: 100e6, corr7: '0',
+    dc_offset_mode7: '0', iq_balance_mode7: '0', gain_mode7: 'False', gain7: '10', if_gain7: '20', bb_gain7: '20', ant7: '', bw7: '0', freq8: 100e6, corr8: '0', dc_offset_mode8: '0', iq_balance_mode8: '0',
+    gain_mode8: 'False', gain8: '10', if_gain8: '20', bb_gain8: '20', ant8: '', bw8: '0', freq9: 100e6, corr9: '0', dc_offset_mode9: '0', iq_balance_mode9: '0', gain_mode9: 'False', gain9: '10', if_gain9: '20',
+    bb_gain9: '20', ant9: '', bw9: '0', freq10: 100e6, corr10: '0', dc_offset_mode10: '0', iq_balance_mode10: '0', gain_mode10: 'False', gain10: '10', if_gain10: '20', bb_gain10: '20', ant10: '', bw10: '0',
+    freq11: 100e6, corr11: '0', dc_offset_mode11: '0', iq_balance_mode11: '0', gain_mode11: 'False', gain11: '10', if_gain11: '20', bb_gain11: '20', ant11: '', bw11: '0', freq12: 100e6, corr12: '0', dc_offset_mode12: '0',
+    iq_balance_mode12: '0', gain_mode12: 'False', gain12: '10', if_gain12: '20', bb_gain12: '20', ant12: '', bw12: '0', freq13: 100e6, corr13: '0', dc_offset_mode13: '0', iq_balance_mode13: '0', gain_mode13: 'False',
+    gain13: '10', if_gain13: '20', bb_gain13: '20', ant13: '', bw13: '0', freq14: 100e6, corr14: '0', dc_offset_mode14: '0', iq_balance_mode14: '0', gain_mode14: 'False', gain14: '10', if_gain14: '20',
+    bb_gain14: '20', ant14: '', bw14: '0', freq15: 100e6, corr15: '0', dc_offset_mode15: '0', iq_balance_mode15: '0', gain_mode15: 'False', gain15: '10', if_gain15: '20', bb_gain15: '20', ant15: '', bw15: '0',
+    freq16: 100e6, corr16: '0', dc_offset_mode16: '0', iq_balance_mode16: '0', gain_mode16: 'False', gain16: '10', if_gain16: '20', bb_gain16: '20', ant16: '', bw16: '0', freq17: 100e6, corr17: '0', dc_offset_mode17: '0',
+    iq_balance_mode17: '0', gain_mode17: 'False', gain17: '10', if_gain17: '20', bb_gain17: '20', ant17: '', bw17: '0', freq18: 100e6, corr18: '0', dc_offset_mode18: '0', iq_balance_mode18: '0', gain_mode18: 'False',
+    gain18: '10', if_gain18: '20', bb_gain18: '20', ant18: '', bw18: '0', freq19: 100e6, corr19: '0', dc_offset_mode19: '0', iq_balance_mode19: '0', gain_mode19: 'False', gain19: '10', if_gain19: '20',
+    bb_gain19: '20', ant19: '', bw19: '0', freq20: 100e6, corr20: '0', dc_offset_mode20: '0', iq_balance_mode20: '0', gain_mode20: 'False', gain20: '10', if_gain20: '20', bb_gain20: '20', ant20: '', bw20: '0',
+    freq21: 100e6, corr21: '0', dc_offset_mode21: '0', iq_balance_mode21: '0', gain_mode21: 'False', gain21: '10', if_gain21: '20', bb_gain21: '20', ant21: '', bw21: '0', freq22: 100e6, corr22: '0', dc_offset_mode22: '0',
+    iq_balance_mode22: '0', gain_mode22: 'False', gain22: '10', if_gain22: '20', bb_gain22: '20', ant22: '', bw22: '0', freq23: 100e6, corr23: '0', dc_offset_mode23: '0', iq_balance_mode23: '0', gain_mode23: 'False',
+    gain23: '10', if_gain23: '20', bb_gain23: '20', ant23: '', bw23: '0', freq24: 100e6, corr24: '0', dc_offset_mode24: '0', iq_balance_mode24: '0', gain_mode24: 'False', gain24: '10', if_gain24: '20',
+    bb_gain24: '20', ant24: '', bw24: '0', freq25: 100e6, corr25: '0', dc_offset_mode25: '0', iq_balance_mode25: '0', gain_mode25: 'False', gain25: '10', if_gain25: '20', bb_gain25: '20', ant25: '', bw25: '0',
+    freq26: 100e6, corr26: '0', dc_offset_mode26: '0', iq_balance_mode26: '0', gain_mode26: 'False', gain26: '10', if_gain26: '20', bb_gain26: '20', ant26: '', bw26: '0', freq27: 100e6, corr27: '0', dc_offset_mode27: '0',
+    iq_balance_mode27: '0', gain_mode27: 'False', gain27: '10', if_gain27: '20', bb_gain27: '20', ant27: '', bw27: '0', freq28: 100e6, corr28: '0', dc_offset_mode28: '0', iq_balance_mode28: '0', gain_mode28: 'False',
+    gain28: '10', if_gain28: '20', bb_gain28: '20', ant28: '', bw28: '0', freq29: 100e6, corr29: '0', dc_offset_mode29: '0', iq_balance_mode29: '0', gain_mode29: 'False', gain29: '10', if_gain29: '20',
+    bb_gain29: '20', ant29: '', bw29: '0', freq30: 100e6, corr30: '0', dc_offset_mode30: '0', iq_balance_mode30: '0', gain_mode30: 'False', gain30: '10', if_gain30: '20', bb_gain30: '20', ant30: '', bw30: '0',
+    freq31: 100e6, corr31: '0', dc_offset_mode31: '0', iq_balance_mode31: '0', gain_mode31: 'False', gain31: '10', if_gain31: '20', bb_gain31: '20', ant31: '', bw31: '0', affinity: '', alias: '', maxoutbuf: '0',
+    minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [8, 600]
+    rotation: 0
+    state: enabled
+- name: analog_agc_xx_0
+  id: analog_agc_xx
+  parameters: {rate: 1e-4, reference: '1.0', gain: '1.0', max_gain: '65536', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: complex}
+  states:
+    coordinate: [230, 620]
+    rotation: 0
+    state: enabled
+- name: symsync
+  id: digital_symbol_sync_xx
+  parameters: {constellation: digital.constellation_bpsk().base(), sps: sps, ted_gain: '1.0', loop_bw: '0.045', damping: '1.0', max_dev: '1.5', osps: '1', nfilters: '128', pfb_mf_taps: '[]', affinity: '',
+    alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: cc, ted_type: digital.TED_GARDNER, resamp_type: digital.IR_MMSE_8TAP}
+  states:
+    coordinate: [400, 600]
+    rotation: 0
+    state: enabled
+- name: qtgui_freq_sink_x_0
+  id: qtgui_freq_sink_x
+  parameters: {type: complex, name: '"Спектр принятого"', fftsize: '2048', freqhalf: 'True', wintype: window.WIN_BLACKMAN_hARRIS, norm_window: 'False', fc: center_freq, bw: samp_rate, grid: 'True', autoscale: 'False',
+    average: '0.2', ymin: '-140', ymax: '10', label: Relative Gain, units: dB, nconnections: '1', update_time: '0.10', showports: 'False', tr_mode: qtgui.TRIG_MODE_FREE, tr_level: '0.0', tr_chan: '0', tr_tag: '""',
+    ctrlpanel: 'False', legend: 'True', axislabels: 'True', width1: '1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [230, 800]
+    rotation: 0
+    state: enabled
+- name: diffphasor
+  id: digital_diff_phasor_cc
+  parameters: {affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [720, 660]
+    rotation: 0
+    state: enabled
+- name: qtgui_const_sink_x_0
+  id: qtgui_const_sink_x
+  parameters: {type: complex, name: '"Созвездие: до (1) / после Differential Phasor (2)"', size: '1024', grid: 'True', autoscale: 'False', ymin: '-1.5', ymax: '1.5', xmin: '-1.5', xmax: '1.5', nconnections: '2',
+    update_time: '0.10', tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_chan: '0', tr_tag: '""', legend: 'True', axislabels: 'True', width1: '1', alpha1: '1.0', affinity: '',
+    alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [900, 760]
+    rotation: 0
+    state: enabled
+- name: dqpsk
+  id: variable_constellation
+  parameters: {sym_map: '[0, 1, 2, 3]', const_points: '[1, 1j, -1, -1j]', rot_sym: '4', dims: '1', normalization: digital.constellation.AMPLITUDE_NORMALIZATION, precision: '8', npwr: '1.0', soft_dec_lut: None,
+    affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: calcdist}
+  states:
+    coordinate: [950, 420]
+    rotation: 0
+    state: enabled
+- name: decoder
+  id: digital_constellation_decoder_cb
+  parameters: {affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', constellation: dqpsk}
+  states:
+    coordinate: [450, 600]
+    rotation: 0
+    state: enabled
+- name: blocks_uchar_to_float_1
+  id: blocks_uchar_to_float
+  parameters: {affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [660, 600]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_1
+  id: qtgui_time_sink_x
+  parameters: {type: float, name: '"Принятое"', ylabel: Amplitude, yunit: '""', size: '100', srate: samp_rate, grid: 'True', autoscale: 'True', ymin: '-1', ymax: '4', nconnections: '1', update_time: '0.10',
+    entags: 'True', tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_delay: '0', tr_chan: '0', tr_tag: '""', ctrlpanel: 'False', legend: 'True', axislabels: 'True', stemplot: 'False',
+    label1: Signal 1, width1: '1', color1: blue, style1: '1', marker1: '-1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [850, 560]
+    rotation: 0
+    state: enabled
+connections:
+- [src, '0', blocks_uchar_to_float_0, '0']
+- [blocks_uchar_to_float_0, '0', qtgui_time_sink_x_0, '0']
+- [src, '0', diff_enc, '0']
+- [diff_enc, '0', chunks2sym, '0']
+- [chunks2sym, '0', blocks_repeat_0, '0']
+- [blocks_repeat_0, '0', blocks_multiply_const_vxx_0, '0']
+- [blocks_multiply_const_vxx_0, '0', sdr_tx, '0']
+- [sdr_rx, '0', analog_agc_xx_0, '0']
+- [analog_agc_xx_0, '0', symsync, '0']
+- [sdr_rx, '0', qtgui_freq_sink_x_0, '0']
+- [symsync, '0', diffphasor, '0']
+- [symsync, '0', qtgui_const_sink_x_0, '0']
+- [diffphasor, '0', qtgui_const_sink_x_0, '1']
+- [diffphasor, '0', decoder, '0']
+- [decoder, '0', blocks_uchar_to_float_1, '0']
+- [blocks_uchar_to_float_1, '0', qtgui_time_sink_x_1, '0']
+metadata: {file_format: 1, grc_version: 3.10.12.0}
