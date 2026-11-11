@@ -2,3 +2,4 @@
 /build/
 /*.py
 __pycache__/
+/lab6/*.py

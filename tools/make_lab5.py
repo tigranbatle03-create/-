@@ -412,7 +412,12 @@ def fg_mpsk(p):
         fg.var("N", "1", (900, 12), comment="п.2.7.7: номер по списку")
 
     # ---------------- передатчик
-    if p.get("vector"):
+    if p.get("packed"):
+        # готовые байты: биты всех символов подряд, модулятор сам режет их на символы
+        src = fg.add("blocks_vector_source_x", (8, 160), bname="src", type="byte",
+                     vector=p["packed"], repeat="True")
+        bpc = None
+    elif p.get("vector"):
         src = fg.add("blocks_vector_source_x", (8, 160), bname="src", type="byte",
                      vector=p["vector"], repeat="True", comment=p.get("vector_comment", ""))
         bpc = {2: 1, 4: 2, 8: 3}[M]
@@ -420,10 +425,13 @@ def fg_mpsk(p):
         src = fg.add("analog_random_uniform_source_x", (8, 160), bname="src", type="byte",
                      minimum="0", maximum="2", seed="0", comment="п.2.2: случайные биты 0/1")
         bpc = 1
-    pack = fg.add("blocks_unpacked_to_packed_xx", (200, 260), bname="pack", type="byte",
-                  bits_per_chunk=str(bpc), endianness="gr.GR_MSB_FIRST",
-                  comment="упаковка в байты (модулятор сам режет их на символы)")
-    fg.con(src, pack)
+    if bpc is None:
+        pack = src
+    else:
+        pack = fg.add("blocks_unpacked_to_packed_xx", (200, 260), bname="pack", type="byte",
+                      bits_per_chunk=str(bpc), endianness="gr.GR_MSB_FIRST",
+                      comment="упаковка в байты (модулятор сам режет их на символы)")
+        fg.con(src, pack)
     mod = fg.add("digital_constellation_modulator", (400, 150), bname="mod", constellation="psk",
                  differential=p.get("diff", "False"), samples_per_symbol="sps", excess_bw="alpha",
                  verbose="False", log="False", truncate="False",
@@ -532,7 +540,14 @@ def fg_mpsk(p):
                         autoscale="False", ymin=-1, ymax=M)
         fg.con(u2f, rts)
         tu = fg.add("blocks_uchar_to_float", (200, 380))
-        fg.con(src, tu)
+        if bpc is None:
+            # для наглядности режем байты на символы так же, как это делает модулятор
+            p2u = fg.add("blocks_packed_to_unpacked_xx", (8, 380), bname="p2u", type="byte",
+                         bits_per_chunk={2: "1", 4: "2", 8: "3"}[M], endianness="gr.GR_MSB_FIRST")
+            fg.con(src, p2u)
+            fg.con(p2u, tu)
+        else:
+            fg.con(src, tu)
         tts = time_sink(fg, (380, 380), "Переданные символы", n=100, srate="Rs",
                         autoscale="False", ymin=-1, ymax=M)
         fg.con(tu, tts)
@@ -573,12 +588,12 @@ PART2 = [
          ted="digital.TED_GARDNER", resamp="digital.IR_PFB_MF", fll=True),
     dict(fname="lab5_2_7_9_qpsk_two_ones.grc", id="lab5_2_7_9_qpsk_two_ones",
          title="ЛР5 п.2.7.9  QPSK: передача «1, 1»", M=4, ss_bw="0.045", N_var=True, const="ordered",
-         diff="True", decode=True, vector="(1, 1)", vector_comment="п.2.7.9: два символа «1»",
+         diff="True", decode=True, packed="(0b01010101,)",
          ted="digital.TED_GARDNER", resamp="digital.IR_PFB_MF", fll=True,
          foff="N*10e3/samp_rate"),
     dict(fname="lab5_2_7_10_8psk_two_sixes.grc", id="lab5_2_7_10_8psk_two_sixes",
          title="ЛР5 п.2.7.10  8PSK: передача «6, 6»", M=8, ss_bw="0.045", costas_w="0.251", N_var=True, const="ordered",
-         diff="True", decode=True, vector="(6, 6)", vector_comment="п.2.7.10: два символа «6»",
+         diff="True", decode=True, packed="(0b11011011, 0b01101101, 0b10110110)",
          ted="digital.TED_GARDNER", resamp="digital.IR_PFB_MF", fll=True,
          foff="N*10e3/samp_rate", costas_comment="петля Костаса 8-го порядка"),
 ]

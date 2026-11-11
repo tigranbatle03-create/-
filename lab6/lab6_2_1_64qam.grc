@@ -1,0 +1,211 @@
+options:
+  parameters: {author: Lab5, catch_exceptions: 'True', category: '[GRC Hier Blocks]', cmake_opt: '', comment: '', copyright: '', description: '', gen_cmake: 'On', gen_linking: dynamic, generate_options: qt_gui,
+    hier_block_src_path: '.:', id: lab6_2_1_64qam, max_nouts: '0', output_language: python, placement: '(0,0)', qt_qss_theme: '', realtime_scheduling: '', run: 'True', run_command: '{python} -u {filename}',
+    run_options: prompt, sizing_mode: fixed, thread_safe_setters: '', title: ЛР6 п.2.1-2.1.2  64QAM, window_size: '(1000,1000)'}
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+blocks:
+- name: samp_rate
+  id: variable
+  parameters: {comment: '', value: 2e6}
+  states:
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+- name: M
+  id: variable
+  parameters: {comment: '', value: '64'}
+  states:
+    coordinate: [300, 12]
+    rotation: 0
+    state: enabled
+- name: symb_rate
+  id: variable
+  parameters: {comment: '', value: 50e3}
+  states:
+    coordinate: [380, 12]
+    rotation: 0
+    state: enabled
+- name: rrc
+  id: variable_rrc_filter_taps
+  parameters: {gain: '40', samp_rate: samp_rate, alpha: '0.4', ntaps: '40', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', sym_rate: symb_rate}
+  states:
+    coordinate: [480, 12]
+    rotation: 0
+    state: enabled
+- name: rrc_1
+  id: variable_rrc_filter_taps
+  parameters: {gain: '1', samp_rate: samp_rate, alpha: '0.4', ntaps: '40', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', sym_rate: symb_rate}
+  states:
+    coordinate: [660, 12]
+    rotation: 0
+    state: enabled
+- name: QAM64
+  id: variable_constellation
+  parameters: {sym_map: list(range(M)), const_points: '[a+1j*b for a in [x-3.5 for x in range(8)] for b in [x-3.5 for x in range(8)]]', rot_sym: '4', dims: '1', normalization: digital.constellation.AMPLITUDE_NORMALIZATION,
+    precision: '8', npwr: '1.0', soft_dec_lut: None, affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: calcdist}
+  states:
+    coordinate: [840, 12]
+    rotation: 0
+    state: enabled
+- name: src
+  id: blocks_vector_source_x
+  parameters: {vector: tuple(range(M)), tags: '[]', repeat: 'True', vlen: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: byte}
+  states:
+    coordinate: [8, 180]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters: {samples_per_second: symb_rate, vlen: '1', ignoretag: 'True', maximum: '0.1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: byte}
+  states:
+    coordinate: [8, 290]
+    rotation: 0
+    state: enabled
+- name: chunks2sym
+  id: digital_chunks_to_symbols_xx
+  parameters: {dimension: '1', num_ports: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', in_type: byte, out_type: complex, symbol_table: QAM64.points()}
+  states:
+    coordinate: [400, 180]
+    rotation: 0
+    state: enabled
+- name: qtgui_const_sink_x_0
+  id: qtgui_const_sink_x
+  parameters: {type: complex, name: '"Передаваемое"', size: '1024', grid: 'True', autoscale: 'False', ymin: '-2', ymax: '2', xmin: '-2', xmax: '2', nconnections: '1', update_time: '0.10', tr_mode: qtgui.TRIG_MODE_FREE,
+    tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_chan: '0', tr_tag: '""', legend: 'True', axislabels: 'True', width1: '1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [400, 300]
+    rotation: 0
+    state: enabled
+- name: tx_filter
+  id: interp_fir_filter_xxx
+  parameters: {interp: int(samp_rate/symb_rate), samp_delay: '0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: ccc, taps: rrc}
+  states:
+    coordinate: [650, 180]
+    rotation: 0
+    state: enabled
+- name: F
+  id: variable_qtgui_range
+  parameters: {rangeType: float, value: '0', start: '0', stop: '200000.0', step: '100', widget: counter_slider, orient: QtCore.Qt.Horizontal, min_len: '200', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0',
+    comment: '', label: '"Частотная расстройка, Гц"'}
+  states:
+    coordinate: [1000, 90]
+    rotation: 0
+    state: enabled
+- name: Noise
+  id: variable_qtgui_range
+  parameters: {rangeType: float, value: '0', start: '0', stop: '5', step: '0.01', widget: counter_slider, orient: QtCore.Qt.Horizontal, min_len: '200', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0',
+    comment: '', label: '"СКО шума"'}
+  states:
+    coordinate: [1170, 90]
+    rotation: 0
+    state: enabled
+- name: channel
+  id: channels_channel_model
+  parameters: {noise_voltage: Noise, freq_offset: F/samp_rate, epsilon: '1.0', taps: '1.0', seed: '0', block_tags: 'False', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [880, 180]
+    rotation: 0
+    state: enabled
+- name: vsink
+  id: virtual_sink
+  parameters: {comment: '', stream_id: QAM}
+  states:
+    coordinate: [1120, 210]
+    rotation: 0
+    state: enabled
+- name: vsrc
+  id: virtual_source
+  parameters: {comment: '', stream_id: QAM}
+  states:
+    coordinate: [8, 520]
+    rotation: 0
+    state: enabled
+- name: qtgui_freq_sink_x_0
+  id: qtgui_freq_sink_x
+  parameters: {type: complex, name: '"Спектр"', fftsize: '1024', freqhalf: 'True', wintype: window.WIN_BLACKMAN_hARRIS, norm_window: 'False', fc: '0', bw: samp_rate, grid: 'True', autoscale: 'False', average: '0.2',
+    ymin: '-140', ymax: '10', label: Relative Gain, units: dB, nconnections: '1', update_time: '0.10', showports: 'False', tr_mode: qtgui.TRIG_MODE_FREE, tr_level: '0.0', tr_chan: '0', tr_tag: '""', ctrlpanel: 'False',
+    legend: 'True', axislabels: 'True', width1: '1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [230, 420]
+    rotation: 0
+    state: enabled
+- name: eye
+  id: qtgui_eye_sink_x
+  parameters: {type: complex, ylabel: Amplitude, yunit: '""', size: '1024', samp_per_symbol: int(samp_rate/symb_rate), srate: samp_rate, grid: 'True', autoscale: 'True', ymin: '-1', ymax: '1', nconnections: '1',
+    update_time: '0.10', entags: 'True', tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_delay: '0', tr_chan: '0', tr_tag: '""', ctrlpanel: 'False', legend: 'True', axislabels: 'True',
+    label1: Signal 1, width1: '1', color1: blue, style1: '1', marker1: '-1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [230, 650]
+    rotation: 0
+    state: enabled
+- name: rx_filter
+  id: fir_filter_xxx
+  parameters: {decim: int(samp_rate/symb_rate), samp_delay: '0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: ccc, taps: rrc_1}
+  states:
+    coordinate: [450, 540]
+    rotation: 0
+    state: enabled
+- name: receiver
+  id: digital_constellation_receiver_cb
+  parameters: {showports: 'False', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', constellation: QAM64, loop_bw: '0.0226', fmin: '-0.503', fmax: '0.503'}
+  states:
+    coordinate: [700, 520]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters: {type: float, name: '"Ошибка (error)"', ylabel: Amplitude, yunit: '""', size: '1024', srate: symb_rate, grid: 'True', autoscale: 'False', ymin: '-0.5', ymax: '0.5', nconnections: '1', update_time: '0.10',
+    entags: 'True', tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_delay: '0', tr_chan: '0', tr_tag: '""', ctrlpanel: 'False', legend: 'True', axislabels: 'True', stemplot: 'False',
+    label1: Signal 1, width1: '1', color1: blue, style1: '1', marker1: '-1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [1000, 420]
+    rotation: 0
+    state: enabled
+- name: null_sink
+  id: blocks_null_sink
+  parameters: {vlen: '1', num_inputs: '3', bus_structure_sink: '[[0,],]', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '', type: float}
+  states:
+    coordinate: [1000, 520]
+    rotation: 0
+    state: enabled
+- name: qtgui_const_sink_x_1
+  id: qtgui_const_sink_x
+  parameters: {type: complex, name: '"После демодулятора созвездия"', size: '1024', grid: 'True', autoscale: 'False', ymin: '-2', ymax: '2', xmin: '-2', xmax: '2', nconnections: '1', update_time: '0.10',
+    tr_mode: qtgui.TRIG_MODE_FREE, tr_slope: qtgui.TRIG_MODE_POS, tr_level: '0.0', tr_chan: '0', tr_tag: '""', legend: 'True', axislabels: 'True', width1: '1', alpha1: '1.0', affinity: '', alias: '', maxoutbuf: '0',
+    minoutbuf: '0', comment: ''}
+  states:
+    coordinate: [1000, 600]
+    rotation: 0
+    state: enabled
+- name: number
+  id: qtgui_number_sink
+  parameters: {name: '"Принятый символ"', autoscale: 'False', avg: '0', nconnections: '1', min: '0', max: M, update_time: '0.10', factor1: '1', affinity: '', alias: '', maxoutbuf: '0', minoutbuf: '0', comment: '',
+    type: byte, graph_type: qtgui.NUM_GRAPH_HORIZ}
+  states:
+    coordinate: [1000, 760]
+    rotation: 0
+    state: enabled
+connections:
+- [src, '0', blocks_throttle2_0, '0']
+- [blocks_throttle2_0, '0', chunks2sym, '0']
+- [chunks2sym, '0', qtgui_const_sink_x_0, '0']
+- [chunks2sym, '0', tx_filter, '0']
+- [tx_filter, '0', channel, '0']
+- [channel, '0', vsink, '0']
+- [vsrc, '0', qtgui_freq_sink_x_0, '0']
+- [vsrc, '0', eye, '0']
+- [vsrc, '0', rx_filter, '0']
+- [rx_filter, '0', receiver, '0']
+- [receiver, '1', qtgui_time_sink_x_0, '0']
+- [receiver, '1', null_sink, '0']
+- [receiver, '2', null_sink, '1']
+- [receiver, '3', null_sink, '2']
+- [receiver, '4', qtgui_const_sink_x_1, '0']
+- [receiver, '0', number, '0']
+metadata: {file_format: 1, grc_version: 3.10.12.0}
